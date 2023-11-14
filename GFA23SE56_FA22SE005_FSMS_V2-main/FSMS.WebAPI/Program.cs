@@ -50,6 +50,7 @@ using FSMS.Service.ViewModels.Authentications;
 using FSMS.WebAPI.Extensions;
 using FSMS.WebAPI.Installers;
 using FSMS.WebAPI.Middlewares;
+using FSMS.WebAPI.SignalRHubs;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -147,14 +148,14 @@ namespace FSMS.WebAPI
             //modelBuilder.EntitySet<GetDocument>("Documents");
 
 
-
+            
 
             //add CORS
             builder.Services.AddCors(cors => cors.AddPolicy(
                                         name: "WebPolicy",
                                         build =>
                                         {
-                                            build.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                                            build.AllowAnyMethod().AllowAnyHeader().SetIsOriginAllowed((host) => true).AllowCredentials();
                                         }
                                     ));
 
@@ -246,7 +247,7 @@ namespace FSMS.WebAPI
                 Credential = GoogleCredential.FromFile("Configurations/capstone-firebase.json")
             });
 
-
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
             // Configure the HTTP request pipeline.
@@ -268,6 +269,8 @@ namespace FSMS.WebAPI
 
             app.ConfigureExceptionMiddleware();
             app.MapControllers();
+
+            app.MapHub<ChatHub>("/Chat");
 
             app.Run();
         }
