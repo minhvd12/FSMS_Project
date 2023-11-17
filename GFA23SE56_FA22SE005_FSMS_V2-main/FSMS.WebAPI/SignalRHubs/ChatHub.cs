@@ -30,7 +30,7 @@ namespace FSMS.WebAPI.SignalRHubs
         public async Task SendMessage(string user, string message)
         {
             var context = new FruitSeasonManagementSystemV10Context();
-            context.ChatHistories.Add(new ChatHistory
+            context.ChatHistory.Add(new ChatHistory
             {
                 Sender = 1,
                 Receiver = Int32.Parse(user),

@@ -39,7 +39,7 @@ namespace FSMS.Entity.Models
         public virtual DbSet<Season> Seasons { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<Weather> Weathers { get; set; } = null!;
-        public virtual DbSet<ChatHistory> ChatHistories { get; set; }
+        public virtual DbSet<ChatHistory> ChatHistory { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

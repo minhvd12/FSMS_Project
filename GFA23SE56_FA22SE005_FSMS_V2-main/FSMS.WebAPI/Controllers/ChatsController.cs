@@ -22,9 +22,34 @@ namespace FSMS.WebAPI.Controllers
         public async Task<IActionResult> History(int receiver)
         {
             var sender = Int32.Parse(HttpContext.User.Identity.Name);
-            var result = _context.ChatHistories.Where(c => (c.Sender == sender && c.Receiver == receiver) || (c.Sender == receiver && c.Receiver == sender)).OrderByDescending(c => c.SendTimeOnUtc).ToList();
+            var result = _context.ChatHistory.Where(c => (c.Sender == sender && c.Receiver == receiver) || (c.Sender == receiver && c.Receiver == sender)).OrderByDescending(c => c.SendTimeOnUtc).ToList();
 
             return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("/[controller]/Users")]
+        [PermissionAuthorize("Supplier", "Farmer", "Admin")]
+        public async Task<IActionResult> GetChatUsers()
+        
+        {
+            var roleName = HttpContext.User.Claims.FirstOrDefault(x => x.Type.ToLower() == "role")?.Value;
+            var role = _context.Roles.FirstOrDefault(r => r.RoleName == roleName);
+            //var users = _context.Users.Where(user => user.RoleId == role.RoleId).ToList();
+            var users = _context.Users.ToList();
+
+            var response = users.Select(user =>
+            {
+                return new
+                {
+                    user.UserId,
+                    user.RoleId,
+                    user.Email,
+                    user.FullName
+                };
+            });
+
+            return Ok(response);
         }
     }
 }
