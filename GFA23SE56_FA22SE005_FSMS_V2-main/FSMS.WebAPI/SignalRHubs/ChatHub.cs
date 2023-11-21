@@ -5,41 +5,38 @@ namespace FSMS.WebAPI.SignalRHubs
 {
     public class ChatHub : Hub
     {
-        //public override async Task OnConnectedAsync()
-        //{
-        //    await Groups.AddToGroupAsync(Context.ConnectionId, "SignalR Users");
-        //    await base.OnConnectedAsync();
-        //}
-
-        //public async Task SendMessage(int receiver, string message)
-        //{
-        //    var context = new FruitSeasonManagementSystemV10Context();
-        //    var action = Clients.Caller.SendAsync("SendMessage", message);
-        //    context.ChatHistory.Add(new ChatHistory
-        //    {
-        //        Sender = 1,
-        //        Receiver = receiver,
-        //        Message = message,
-        //        SendTimeOnUtc = DateTime.UtcNow
-        //    });
-
-        //    await action;
-
-        //    await context.SaveChangesAsync();
-        //}
-        public async Task SendMessage(string user, string message)
+        public override async Task OnConnectedAsync()
         {
-            var context = new FruitSeasonManagementSystemV10Context();
-            context.ChatHistory.Add(new ChatHistory
+            var userId = Context.GetHttpContext()?.Request.Query["userid"].ToString();
+            if(userId is not null)
             {
-                Sender = 1,
-                Receiver = Int32.Parse(user),
-                Message = message,
-                SendTimeOnUtc = DateTime.UtcNow
-            });
+                await Groups.AddToGroupAsync(Context.ConnectionId, userId);
+            }
+            await base.OnConnectedAsync();
+        }
 
-            await context.SaveChangesAsync();
-            await Clients.All.SendAsync("ReceiveMessage", user, message);
+        public async Task SendMessage(string sender, string receiver, string message)
+        {
+            try
+            {
+                var context = new FruitSeasonManagementSystemV10Context();
+                var time = DateTime.Now;
+                context.ChatHistory.Add(new ChatHistory
+                {
+                    Sender = Int32.Parse(sender),
+                    Receiver = Int32.Parse(receiver),
+                    Message = message,
+                    SendTimeOnUtc = time
+                });
+
+                await context.SaveChangesAsync();
+                await Clients.Groups(sender, receiver).SendAsync("ReceiveMessage", sender, receiver, message, time);
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
         }
     }
 }

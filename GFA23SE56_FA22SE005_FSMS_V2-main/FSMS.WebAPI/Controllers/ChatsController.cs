@@ -22,21 +22,29 @@ namespace FSMS.WebAPI.Controllers
         public async Task<IActionResult> History(int receiver)
         {
             var sender = Int32.Parse(HttpContext.User.Identity.Name);
-            var result = _context.ChatHistory.Where(c => (c.Sender == sender && c.Receiver == receiver) || (c.Sender == receiver && c.Receiver == sender)).OrderByDescending(c => c.SendTimeOnUtc).ToList();
+            var result = _context.ChatHistory.Where(c => (c.Sender == sender && c.Receiver == receiver) || (c.Sender == receiver && c.Receiver == sender)).OrderBy(c => c.SendTimeOnUtc).ToList();
 
             return Ok(result);
         }
 
         [HttpGet]
         [Route("/[controller]/Users")]
-        [PermissionAuthorize("Supplier", "Farmer", "Admin")]
+        [PermissionAuthorize("Supplier", "Farmer")]
         public async Task<IActionResult> GetChatUsers()
         
         {
             var roleName = HttpContext.User.Claims.FirstOrDefault(x => x.Type.ToLower() == "role")?.Value;
             var role = _context.Roles.FirstOrDefault(r => r.RoleName == roleName);
-            //var users = _context.Users.Where(user => user.RoleId == role.RoleId).ToList();
-            var users = _context.Users.ToList();
+            var users = new List<User>();
+            if (role.RoleId == 3)
+            {
+                users = _context.Users.Where(user => user.RoleId == 4).ToList();
+            }
+            else if(role.RoleId == 4)
+            {
+                users = _context.Users.Where(user => user.RoleId == 3).ToList();
+            }
+
 
             var response = users.Select(user =>
             {
