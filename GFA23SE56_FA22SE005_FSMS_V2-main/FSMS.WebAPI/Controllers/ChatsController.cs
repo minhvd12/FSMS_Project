@@ -53,7 +53,8 @@ namespace FSMS.WebAPI.Controllers
                     user.UserId,
                     user.RoleId,
                     user.Email,
-                    user.FullName
+                    user.FullName,
+                    profileImageUrl= user.ProfileImageUrl ?? "../../user.jpg"
                 };
             });
 
