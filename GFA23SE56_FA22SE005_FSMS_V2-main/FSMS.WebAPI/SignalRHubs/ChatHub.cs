@@ -20,7 +20,7 @@ namespace FSMS.WebAPI.SignalRHubs
             try
             {
                 var context = new FruitSeasonManagementSystemV10Context();
-                var time = DateTime.Now;
+                var time = DateTime.UtcNow.AddHours(7);
                 context.ChatHistory.Add(new ChatHistory
                 {
                     Sender = Int32.Parse(sender),
